@@ -1,0 +1,25 @@
+# report server name
+title: Home
+# global configurations
+# database host
+local_mysql_host: 127.0.0.1
+# database port, defaults to 3306
+local_mysql_port: 3306
+# mysql user name
+local_mysql_user:
+# mysql password 
+local_mysql_password:
+# mysql database name 
+local_mysql_database: 
+local_mysql_insecure_auth: true
+
+
+# the reports, this information will be used to create general navigation pane
+reports:
+  - category: Report Set One
+    reports: 
+    - title: Example One 
+      href: /reports/report_one
+    reports: 
+    - title: Example Two
+      href: /reports/report_two

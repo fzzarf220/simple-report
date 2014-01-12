@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>{{title}}</title>
+		<link href="//netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css" rel="stylesheet">
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap.css" rel="stylesheet">
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.js"></script>
+		<script src="http://code.highcharts.com/highcharts.js"></script>
+		<script type="text/javascript" src="http://cdn.ucb.org.br/Scripts/tablesorter/jquery.tablesorter.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="http://cdn.ucb.org.br/Scripts/tablesorter/blue/style.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type='text/javascript' src='../js/common.js' ></script>
+	</head>
+	<body>
+		<table class='reports'>
+		<tbody>
+			<tr><td colspan='2' id='topnav'>
+				<div class='navbar navbar-static-top navbar-inverse'>
+					<div class="navbar-inner">
+						<a class='brand' href='/'>{{title}}</a>
+						<ul class='nav'>
+							<li class='active'>
+								<a onclick="if(this.sidenav_show==null || this.sidenav_show==true)
+								{
+									this.sidenav_show=false; 
+									this.parentNode.className='';
+									$('#sidenav').hide();
+								}
+								else 
+								{
+									this.sidenav_show=true;
+									this.parentNode.className='active';
+									$('#sidenav').show();
+								}
+
+								return false;
+
+								"> Menu</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</td></tr>
+			<tr>
+			<td id="sidenav">
+				<ul class="nav nav-list">
+					{{#reports}}
+						<li class="nav-header">{{category}}</li>
+						{{#reports}}
+							<li>
+								{{#id}}<a href="#{{id}}">{{/id}}
+								{{#href}}<a href="{{href}}">{{/href}}
+									<i class='icon-{{#set}}{{#graph}}signal{{/graph}}{{/set}}'></i>
+									{{title}}
+								</a>
+							</li>
+						{{/reports}}
+					{{/reports}}
+				</ul>
+			</td>
+			<td id="reports">
+				<div id='content1' data-spy="scroll" data-target="#sidenav">
+					<div id='content2'>
+						{{#reports}}
+							{{#reports}}
+								<div id="{{id}}" class='report'>
+									<h3 class='pull-left'>{{category}} - {{title}}</h3>
+									{{#set}}
+										{{#graph}}
+											{{#type}}
+												<ul class="nav nav-pills" style="position: relative; top: 14px; left: 10px;">
+														<li class="dropdown">
+															<a class="dropdown-toggle" data-toggle="dropdown" href="#"> 
+																options
+   																<b class="caret"></b>
+   															</a>
+															<ul class='dropdown-menu'>
+																<li><a onclick="set_graph('chart_{{id}}', 'spline', data.title)">Line Graph</a></li>
+																<li><a onclick="set_graph('chart_{{id}}', 'area', data.title)">Line Graph (Stacked)</a></li>
+																<li><a onclick="set_graph('chart_{{id}}', 'column', data.title)">Bar Graph</a></li>
+																<li><a onclick="set_graph('chart_{{id}}', 'bar', data.title)">Bar Graph (Stacked)</a></li>
+																<li><a onclick="set_graph('chart_{{id}}', 'pie', data.title)">Pie Chart (experimental)</a></li>
+																<li class="divider"></li>
+																<li><a onclick="
+																	$.get('{{path_to_data}}?category={{category}}&id={{id}}',function(data)
+																	{
+																		set_graph('chart_{{id}}', '{{type}}', data.title, data.chart)
+																	})">Reload</a></li>
+															</ul>
+														</li>
+   												</ul>{{/type}}
+										{{/graph}}
+
+										<p style='clear: both;'>{{description}}&nbsp;</p>
+										{{#description}}<br />{{/description}}
+										<!-- graph -->
+										{{#graph}}
+											{{#type}}
+												<div class='chart' id='chart_{{id}}'><li class='icon-time'></li> loading graph...</div>
+											{{/type}}
+										{{/graph}}
+
+										<!-- data -->
+										<div id='data'><li class='icon-time'></li> loading table...</div>
+										<script>
+											$(document).ready(function() 
+											{
+												$.get('{{{path_to_data}}}?category={{category}}&id={{id}}',function(data)
+												{
+													//set table data
+													set_table('{{id}}', data.title, data.table)
+													//refresh scrollspy
+													$('[data-spy="scroll"]').each(function () 
+													{
+												    	var $spy = $(this).scrollspy('refresh')
+												    });
+													
+													{{#graph}}
+														{{#type}}
+															/*********************************************************
+															 * Graph
+															**********************************************************/
+															set_graph('chart_{{id}}', '{{type}}', data.title, data.chart)
+														{{/type}}
+													{{/graph}}
+												})
+											}); 
+										</script>
+									{{/set}}
+								</div>
+							{{/reports}}
+						{{/reports}}
+					</div>
+				</div>
+			</td>
+		</tr></tbody></table>
+	</body>
+</html>

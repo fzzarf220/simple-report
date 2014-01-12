@@ -1,0 +1,19 @@
+{
+	 "name"		: "simple-reports"
+	,"repository"	:
+	{ 
+		 "type"		: ""
+		,"url"		: "" 
+	}
+	,"version"	: "2.0.0"
+	,"author"	: "Fraz Khalil <fzzarf220@gmail.com>"
+	,"description"	: "This is a simplified report portal"
+	,"dependencies"	:
+	{
+		 "js-yaml"	: "1.0.3"
+		,"mysql"	: "2.0.0-alpha5"
+		,"mustache"	: "0.7.2"
+		,"express"	: "3.0.5"
+		,"html"		: "0.0.7"
+	}
+}
