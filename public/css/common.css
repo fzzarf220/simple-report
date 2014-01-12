@@ -1,0 +1,83 @@
+html, body
+{
+	height: 100%;
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+body
+{ 
+	font-size: 12px; 
+	background: #cfcfcf;
+}
+table.reports
+{
+	border-collapse: collapse;
+	width: 100%;
+	height: 100%;
+}
+ table.reports td.number
+,table.reports th.number
+{
+	text-align: right;
+}
+table.reports td#topnav a
+{
+	cursor: pointer;
+}
+table.reports td#sidenav
+{
+	vertical-align: top;
+	white-space: nowrap;
+	height: 100%;
+	box-shadow: -27px 0 15px -15px gray inset
+}
+table.reports td#reports 
+{
+	background: white;
+	width: 100%;
+	height: 100%;
+}
+
+table.reports td#reports div#content1
+{
+	height: 100%;
+	overflow: auto;
+	position: relative;
+}
+
+table.reports td#reports div#content1 div#content2
+{
+	overflow: hidden;
+	padding: 10px 50px;
+	
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+div.report
+{
+    margin: 30px 0 0;
+    padding: 0;
+}
+
+.chart
+{
+	margin: 0px 0px 30px;
+}
+
+table.table thead th
+{
+	cursor: pointer;
+}
+
+ table.table thead th.headerSortDown
+,table.table thead th.headerSortUp
+{
+	background: #EFEFEF;
+}
+.dropdown-menu a
+{
+	cursor: pointer;
+}

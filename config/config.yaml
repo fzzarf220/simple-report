@@ -20,6 +20,7 @@ reports:
     reports: 
     - title: Example One 
       href: /reports/report_one
+  - category: Report Set Two
     reports: 
     - title: Example Two
       href: /reports/report_two
