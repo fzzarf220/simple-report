@@ -13,6 +13,10 @@ To install, run the following:
 
 To start application, run the following command:
 	$ node server
+
+To reach the server, open a browser and go to http://localhost:3000 
+
+NOTE: By default the server is hosting on port 3000
  
 Setting Configuration:
 
