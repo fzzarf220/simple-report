@@ -19,8 +19,8 @@ reports:
   - category: Report Set One
     reports: 
     - title: Example One 
-      href: /reports/report_one
+      href: reports/example_one
   - category: Report Set Two
     reports: 
     - title: Example Two
-      href: /reports/report_two
+      href: reports/report_two

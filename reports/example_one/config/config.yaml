@@ -1,0 +1,65 @@
+title: Example One
+
+#
+# type 				the possible types: query_string, query_file, json_string, json_file
+# query 			the string query to use
+# data 				the value of is dependent on the type, 
+#               query_string - the data should be a SQL query
+#               query_file - the data should be a file path that contains SQL query
+#               json_string - the data should be a json data set
+#               json_file - the data should be a file path to file that contains json data
+# set
+#   data_in_rows - (true/false), if set to true it means the legands are located 
+#                  in the first column and the legend data spans the rest of that 
+#                  row starting from the 2st column 
+#                  for example; (row1,column1) is the legend and then (row1,
+#                  column2)...(row1,columnN) is the data for that legand where N 
+#                  is the total number of columns
+#   data_in_columns - (true/false), if set to true it means the legands are located 
+#                  in the first row (aka table header) and the legend data spans the 
+#                  rest of that column starting after the 2nd row
+#                  for example; (row1,column1) is the legend and then (row2,
+#                  column1)...(rowN,column1) is the data for that legand where N is
+#                  the total number of rown
+# string query_type valid types are "file", "string" or empty which defaults to "string"
+# string query the query to run, if query_type set to file then a valid file path
+# graph type string the default graph type to display as; possible values:
+#                      spline - Line Graph
+#                      area - Line Graph (Stacked)
+#                      column - Bar Graph
+#                      bar - Bar Graph (Stacked)
+#                      pie - Pie Chart (experimental)
+#
+# 
+#
+
+reports:
+  - category: Report 1
+    reports: 
+    - title: Assigned Tickets
+      description: |
+        The list of assigned tickets on Maxit developers
+      type: json_string 
+      data: |
+      	{
+      		 header: [one,two,thee,four,five,six]
+      		,series: 
+            {
+             hay: [1,2,3,4,5,6]
+            ,bee: [1,2,3,4,5,6]
+            ,sea: [1,2,3,4,5,6]
+            ,dee: [1,2,3,4,5,6]
+            ,eee: [1,2,3,4,5,6]
+            ,eph: [1,2,3,4,5,6]
+          }
+      	}
+      id: report1
+      set:
+        data_in_rows: true
+        data_in_columns: false
+        disable_totals_row: false 
+        disable_totals_columen: false
+        graph:
+          type: bar
+          title_xaxis: Ticket Severity
+          title_yaxis: Ticket Count

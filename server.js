@@ -39,16 +39,24 @@ function add_config(path_to_report,key,clear_cache)
 {
 	var file_config='/config/config.yaml'
 	var file_path=path_to_report+file_config
-	// get file path from cache
-	var file_path_cached=require.resolve(file_path)
-	var _key=(typeof key=="undefined" ? path_to_report : key)
 
+	// get file path from cache
+	try
+	{
+		var file_path_cached=require.resolve(file_path)
+		var _key=(typeof key=="undefined" ? path_to_report : key)
+	} catch (e)
+	{
+		throw "Error loading config file '"+file_path+"'"
+	}
+	
 	if(clear_cache == true)
 		delete require.cache[require.resolve(file_path)]
 	if (typeof config[_key] == "undefined")
 	{
 		console.log('watching file ' + file_path);
-		fs.watchFile(file_path, function(current,previous){
+		fs.watchFile(file_path, function(current, previous)
+		{
 			console.log("=============================")
 			console.log("file changed")
 			console.log(current)
@@ -109,7 +117,6 @@ function get_config(key, path_to_report)
 	return val
 }
 
-
 /**
  * return the data as json
  * @param object results the results object that contains the data
@@ -119,6 +126,7 @@ function get_config(key, path_to_report)
  	{
 		 series: object array of series data
 		,header: string array of headers
+		,totals: an array of totals
  	}
  **/
 function mysql_to_json(results, fields, data_in_rows)
@@ -264,7 +272,51 @@ function mysql_to_json(results, fields, data_in_rows)
 		,'totals': [{data: totals}]
 		,'header': headers
 	}
+}
 
+/**
+ * publish json data
+ * @param json data a json object 
+ * @param stirng title the title
+ * @param string the set object
+ * @param obj response the response object
+ * @return void
+ **/
+function set_json_data(data, title, set, response)
+{
+	if (error) response.send(error);
+	var graph=data
+	var table=graph
+	var xaxis=new Array()
+
+	for(var i=1; i<graph["header"].length; i++)
+		xaxis.push(graph["header"][i])
+
+	if (set["table_layout_vertical"]==true)
+		table=data
+
+	var obj={
+		 title: title
+		,chart:
+		{
+			 xaxis: xaxis
+			,title_xaxis: (set["graph"] && set["graph"]["title_xaxis"] ? set["graph"]["title_xaxis"] : "")
+			,title_yaxis: (set["graph"] && set["graph"]["title_yaxis"] ? set["graph"]["title_yaxis"] : "")
+			,series: graph["series"]
+			,totals: graph["totals"]
+		}
+		,table:
+		{
+			 header: table["header"]
+			,disable_totals_row: set["disable_totals_row"]
+			,disable_totals_column: set["disable_totals_column"]
+			,series: table["series"]
+		}
+	}
+
+	//console.log("sending response")
+	//console.dir(obj)
+	response.send(obj);	
 }
 
 // data route
@@ -367,25 +419,31 @@ app.get('/data/*',function(request,response)
 			var _report=_reports[r]
 			var _title=_report["title"]
 			var _set=_report["set"]
-			console.log("query path: " +_report["query"])
 			console.log("report: ",_report)
 			console.log("set: ",_set)
 			console.log("sending request --> "+id)
 
-			switch(_report["query_type"])
+			switch(_report["type"])
 			{
-				case "file":
-					console.log("path to query file: " + path_to_report+"/"+_report["query"])
+				case "json_file":
+				case "query_file":
+					console.log("path to query file: " + path_to_report+"/"+_report["data"])
 					// get query from file
-					fs.readFile(path_to_report+"/"+_report["query"],'utf8',function(error,query)
+					fs.readFile(path_to_report+"/"+_report["data"],'utf8',function(error,data)
 					{
 						if (error) response.send(error);
-						set_query(query,_title,_set,response);
+						if (_report["type"]=="json_file")
+							set_json_data(data,_title,_set,response);
+						else
+							set_query(data,_title,_set,response);
 					})
 					break;
-				case "string":
+				case "json_string":
+					set_json_data(_report["data"],_title,_set,response);
+					break
+				case "query_string":
 				default:
-					set_query(_report["query"],_title,_set,response);
+					set_query(_report["data"],_title,_set,response);
 					break
 			}
 			
@@ -395,7 +453,7 @@ app.get('/data/*',function(request,response)
 })
 
 // report route
-app.get('/report/*', function(request, response)
+app.get('/reports/*', function(request, response)
 {
 	console.log("fetching report")
 	var template_body=fs.readFileSync("./templates/base.page.html",'utf8');
