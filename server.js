@@ -275,180 +275,198 @@ function mysql_to_json(results, fields, data_in_rows)
 }
 
 /**
- * publish json data
- * @param json data a json object 
- * @param stirng title the title
- * @param string the set object
- * @param obj response the response object
+ * for given query, fetch data and set the query output to page
+ * @param string query the query string
+ * @param string title the query title
+ * @param object set an object that explains how the data set will be displayed
+ * @param object response the response object to send output to
+ * @return void
+**/
+function set_query(query, title, set, response)
+{
+	// create mysql connection
+	var connection=mysql.createConnection({
+		 host: get_config('local_mysql_host', path_to_report).toString()
+		,port: get_config('local_mysql_port', path_to_report).toString()
+		,user: get_config('local_mysql_user', path_to_report).toString()
+		,password: get_config('local_mysql_password', path_to_report).toString()
+		,database: get_config('local_mysql_database', path_to_report).toString()
+		,insecureAuth: get_config('local_mysql_insecure_auth', path_to_report).toString()
+	});
+	//console.log(title)
+	console.log(query)
+	//console.dir(set)
+
+	// run query against mysql db
+	connection.query(query,function (error, results, fields) 
+	{
+		//close connection
+		connection.end(function(error) 
+		{
+		  	// The connection is terminated now
+		  	console.log("closing db connection")
+			if (error) console.log("error closing connection")
+		})
+
+		if (error) response.send(error);graph
+		var graph=mysql_to_json(results, fields, (set["data_in_columns"] ? false : true))
+		var table=graph
+	
+		if (set["table_layout_vertical"]==true)
+			table=mysql_to_json(results, fields, set["table_layout_vertical"])
+
+		publish_data(title,set,{"graph": graph, "table": table},response)
+	})
+}
+
+/**
+ * publish the data
+ * @param string title the title
+ * @param object set the set configuratino
+ * @param object data JSON object with two elemets, graph and table where table is options
+ * @param object response the response object
  * @return void
  **/
-function set_json_data(data, title, set, response)
+function publish_data(title, set, data, response)
 {
-	if (error) response.send(error);
-	var graph=data
-	var table=graph
 	var xaxis=new Array()
+	
+	if(data["table"] == null || typeof data["table"] != "object")
+		data["table"]=data["graph"]
 
-	for(var i=1; i<graph["header"].length; i++)
-		xaxis.push(graph["header"][i])
+	for(var i=1; i<data["graph"]["header"].length; i++)
+		xaxis.push(data["graph"]["header"][i])
 
-	if (set["table_layout_vertical"]==true)
-		table=data
-
-	var obj={
+	response.send({
 		 title: title
 		,chart:
 		{
 			 xaxis: xaxis
 			,title_xaxis: (set["graph"] && set["graph"]["title_xaxis"] ? set["graph"]["title_xaxis"] : "")
 			,title_yaxis: (set["graph"] && set["graph"]["title_yaxis"] ? set["graph"]["title_yaxis"] : "")
-			,series: graph["series"]
-			,totals: graph["totals"]
+			,series: data["graph"]["series"]
+			,totals: data["graph"]["totals"]
 		}
 		,table:
 		{
-			 header: table["header"]
+			 header: data["table"]["header"]
 			,disable_totals_row: set["disable_totals_row"]
 			,disable_totals_column: set["disable_totals_column"]
-			,series: table["series"]
+			,series: data["table"]["series"]
 		}
-	}
-
-	//console.log("sending response")
-	//console.dir(obj)
-	response.send(obj);	
+	})
 }
 
+function Data()
+{
+	this.data=null;
+	this.set_data=function(){}
+	this.get_data=function(){}
+}
+
+function Exception(message,code)
+{
+	this.message=message
+	this.code=code
+}
+
+/*************************************************
+ * ROUTES
+ *************************************************/
 // data route
 app.get('/data/*',function(request,response)
 {
 	console.log("fetching data")
-	var path_to_report="./"+url.parse(request.url).pathname.replace(/^\/data\//,'')
-
-	/**
-	 * for given query, fetch data and set the query output to page
-	 * @param string query the query string
-	 * @param string title the query title
-	 * @param object set an object that explains how the data set will be displayed
-	 * @param object response the repsponse object to send output to
-	 * @return void
-	**/
-	function set_query(query, title, set, response)
+	try
 	{
-		// create mysql connection
-		var connection=mysql.createConnection({
-			 host: get_config('local_mysql_host', path_to_report).toString()
-			,port: get_config('local_mysql_port', path_to_report).toString()
-			,user: get_config('local_mysql_user', path_to_report).toString()
-			,password: get_config('local_mysql_password', path_to_report).toString()
-			,database: get_config('local_mysql_database', path_to_report).toString()
-			,insecureAuth: get_config('local_mysql_insecure_auth', path_to_report).toString()
-		});
-		//console.log(title)
-		console.log(query)
-		//console.dir(set)
+		var path_to_report="./"+url.parse(request.url).pathname.replace(/^\/data\//,'')
+		var id=request.query['id']
+		var category=request.query['category']
 
-		// run query against mysql db
-		connection.query(query,function (error, results, fields) 
+		if (typeof id == 'undefined' || id.length <= 0) 
+			throw new Exception("no report id provided");
+		if (typeof category == 'undefined' || category.length <= 0) 
+			throw new Exception("no report category provided");
+		
+		var reports=get_config("reports", path_to_report)
+		console.log("URL id: " + id)
+		console.log("URL category: "+category)
+		console.log("URL reports: "+reports)
+
+		//validate the request
+		for(var c=0; c<reports.length; c++)
 		{
-			//close connection
-			connection.end(function(error) 
-			{
-			  	// The connection is terminated now
-			  	console.log("closing db connection")
-				if (error) console.log("error closing connection")
-			})
-
-			if (error) response.send(error);
-			var graph=mysql_to_json(results, fields, (set["data_in_columns"] ? false : true))
-			var table=graph
-			var xaxis=new Array()
-
-			for(var i=1; i<graph["header"].length; i++)
-				xaxis.push(graph["header"][i])
-
-			if (set["table_layout_vertical"]==true)
-				table=mysql_to_json(results, fields, set["table_layout_vertical"])
-
-			var obj={
-				 title: title
-				,chart:
-				{
-					 xaxis: xaxis
-					,title_xaxis: (set["graph"] && set["graph"]["title_xaxis"] ? set["graph"]["title_xaxis"] : "")
-					,title_yaxis: (set["graph"] && set["graph"]["title_yaxis"] ? set["graph"]["title_yaxis"] : "")
-					,series: graph["series"]
-					,totals: graph["totals"]
-				}
-				,table:
-				{
-					 header: table["header"]
-					,disable_totals_row: set["disable_totals_row"]
-					,disable_totals_column: set["disable_totals_column"]
-					,series: table["series"]
-				}
-			}
-
-			//console.log("sending response")
-			//console.dir(obj)
-			response.send(obj);
-		})
-	}
-
-	var id=request.query['id']
-	var category=request.query['category']
-	var reports=get_config("reports", path_to_report)
-	console.log("URL id: " + id)
-	console.log("URL category: "+category)
-	console.log("URL reports: "+reports)
-
-	//validate the request
-	for(var c=0; c<reports.length; c++)
-	{
-		// ignore request if not correct category
-		if (category != reports[c]["category"]) 
-			continue
-
-		var _reports=reports[c]["reports"];
-
-		for (var r=0; r<_reports.length; r++)
-		{
-			if (id != _reports[r]["id"]) 
+			// ignore request if not correct category
+			if (category != reports[c]["category"]) 
 				continue
 
-			var _report=_reports[r]
-			var _title=_report["title"]
-			var _set=_report["set"]
-			console.log("report: ",_report)
-			console.log("set: ",_set)
-			console.log("sending request --> "+id)
+			var _reports=reports[c]["reports"];
 
-			switch(_report["type"])
+			for (var r=0; r<_reports.length; r++)
 			{
-				case "json_file":
-				case "query_file":
-					console.log("path to query file: " + path_to_report+"/"+_report["data"])
-					// get query from file
-					fs.readFile(path_to_report+"/"+_report["data"],'utf8',function(error,data)
-					{
-						if (error) response.send(error);
-						if (_report["type"]=="json_file")
-							set_json_data(data,_title,_set,response);
-						else
+				if (id != _reports[r]["id"]) 
+					continue
+
+				var _report=_reports[r]
+				var _title=_report["title"]
+				var _set=_report["set"]
+				console.log("report: ",_report)
+				console.log("set: ",_set)
+				console.log("sending request --> "+id)
+
+				switch(_report["type"])
+				{
+					case "json_file":
+						console.log("path to JSON file: " + path_to_report+"/"+_report["data"])
+						// get query from file
+						fs.readFile(path_to_report+"/"+_report["data"],'utf8',function(error,data)
+						{
+							if (error) response.send(error);
+							publish_data(_title,_set,{"graph":data},response);
+						})
+						break;
+					case "query_file":
+						console.log("path to query file: " + path_to_report+"/"+_report["data"])
+						// get query from file
+						fs.readFile(path_to_report+"/"+_report["data"],'utf8',function(error,data)
+						{
+							if (error) response.send(error);
 							set_query(data,_title,_set,response);
-					})
-					break;
-				case "json_string":
-					set_json_data(_report["data"],_title,_set,response);
-					break
-				case "query_string":
-				default:
-					set_query(_report["data"],_title,_set,response);
-					break
+						})
+						break;
+					case "query_string":
+						set_query(_report["data"],_title,_set,response);
+						break;
+					default:
+					case "json_string":
+						try
+						{
+							var data=JSON.parse(_report["data"]);
+						}
+						catch (e)
+						{
+							console.log("Error while parsing JSON data");
+							console.dir(e);
+						}
+						console.log("data from YAML config")
+						console.dir(_report['data'])
+						console.log("data as JSON")
+						console.dir(data)
+						publish_data(_title,_set,{"graph":data},response);
+						break;
+				}
+				
+				break;
 			}
-			
-			break
 		}
+	}
+	catch (e)
+	{
+		/*
+		response.send({error:{code: "001",desc: "unable to process request"}});
+		*/
+		console.dir(e);
+		response.send({error:{desc: e.message}});
 	}
 })
 
@@ -464,17 +482,24 @@ app.get('/reports/*', function(request, response)
 	console.log("path_to_data: " + path_to_data)
 
 	// check if path exists
-	fs.exists(path_to_report, function(exists){
+	fs.exists(path_to_report, function(exists)
+	{
 		if (!exists) response.send(404);
 
-		var output=Mustache.render(template_body,
+		try
 		{
-			 title: get_config("title", path_to_report)
-			,reports: get_config("reports", path_to_report)
-			,path_to_data:path_to_data
-		})
+			var output=Mustache.render(template_body,
+			{
+				 title: get_config("title", path_to_report)
+				,reports: get_config("reports", path_to_report)
+				,path_to_data:path_to_data
+			})
 
-		return response.send(output);
+			return response.send(output);
+		} catch (e)
+		{
+			console.dir(e);
+		}
 	})
 });
 

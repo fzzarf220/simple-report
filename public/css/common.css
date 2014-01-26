@@ -54,6 +54,8 @@ table.reports td#reports div#content1 div#content2
 	position: absolute;
 	left: 0;
 	top: 0;
+
+	min-width: 70%;
 }
 
 div.report

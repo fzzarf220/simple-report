@@ -21,9 +21,11 @@ function set_table(id,title,data)
 	var col_totals=[]
 	var col_types=new Array()
 
-	console.log("set_table()")
+	/*
+	console.log("function: set_table()")
 	console.log("id: "+id)
 	console.log("title: "+title)
+	*/
 	//===========================================
 	// set body
 	//===========================================
