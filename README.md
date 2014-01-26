@@ -26,3 +26,18 @@ NOTE: By default the server is hosting on port 3000
 
 Configurations can be done in a global context and local context.  All global configurations are set in the config.yaml file under the project's "config" directory.  In the local report directoy, within its config.yaml file you can override global configurations.
 
+Here's data example:
+      type: json_string 
+      data: |
+        {
+           "header": ["Members","Monday","Tuesday","Wednesday","Thursday","Friday"]
+          ,"series": 
+          [
+             {"name": "James", "data": [1,12,33,14,5]}
+            ,{"name": "Allen", "data": [101,23,124,105,6]}
+            ,{"name": "Celine", "data": [1,12,13,5,36]}
+            ,{"name": "Dee", "data": [20,23,23,15,106]}
+            ,{"name": "Ejay", "data": [1,0,4,3,2]}
+            ,{"name": "Ella", "data": [2,13,4,4,2]}
+          ]
+        }
