@@ -63,3 +63,23 @@ Below is an example of a JSON report configured via the YAML report config.  The
 	          type: bar
 	          title_xaxis: Day of the Week
 	          title_yaxis: Ticket Count
+
+
+Config 
+| title | the page title, this title will appear in the browser menu and also on the top most navigation pane |
+| reports | a collection of categories |
+
+Reports 
+| category | the category name |
+| reports | the collection of reports within the category |
+
+Category
+| title | the name of the category |
+| id | a uniqute id used by Javascript |
+| description | a description of the report | 
+| type | valid report types, see "Valid Report Types" table | 
+
+
+Valid Report Type
+| json_type | |
+
