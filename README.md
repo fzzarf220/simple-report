@@ -76,16 +76,16 @@ The configuration intially starts with a title and reports configuration set
 | key | description |
 |---|---|
 | title | the page title, this title will appear in the browser menu and also on the top most navigation pane |
-| reports | a collection of categories |
+| reports | a collection of categories, see "Reports Configuration Set" |
 
-#### Reports 
+#### Reports Configuration Set
 
 | key | description |
 |---|---|
 | category | the category name |
-| reports | the collection of reports within the category |
+| reports | the collection of reports within the category, see "Caegory Configuration Set" |
 
-#### Category
+#### Category Configuration Set
 
 | key | description |
 |---|---|
@@ -94,6 +94,26 @@ The configuration intially starts with a title and reports configuration set
 | description | a description of the report | 
 | type | valid report types, see "Valid Report Types" table | 
 | data | data respective of the type, if type is file then the file path else a string |
+| set | configuraton set of how to display the dataset, see "Data Configuration Set" |
+
+#### Data Configuration Set
+
+| key | description |
+|---|---|
+| data_in_rows | boolean value of true or false |
+| data_in_columns | boolean value of true or false |
+| disable_totals_row | boolean value of true or false |
+| disable_totals_columen | boolean value of true or false |
+| graph | The graph configuration set, see "Graph Configuration Set" |
+
+
+#### Graph Configuration Set
+
+| key | description |
+|---|---|
+| type | the graph type, either "bar", "line", "pie" |
+| title_xaxis | the x-axis title |
+| title_yaxis | the y-axis title |
 
 ### Valid Report Type 
 The report type will explain with the report will expect from the "data", if the type is of type file then the data is expected to be a file path, else a string (either SQL or JSON)
