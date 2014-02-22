@@ -16,12 +16,14 @@ The following list of applications need to be installed
 
 ## Install Instructions
 To install, run the following:
-	$ npm install
+
+    $ npm install
 
 
 ## Run Instruction
 To start application, run the following command:
-	$ node server
+
+    $ node server
 
 To reach the server, open a browser and go to http://localhost:3000 
 
@@ -31,8 +33,10 @@ NOTE: By default the server is hosting on port 3000
 
 Configurations can be done in a global context and local context.  All global configurations are set in the config.yaml file under the project's "config" directory.  In the local report directoy, within its config.yaml file you can override global configurations.
 
+### example:
 Below is an example of a JSON report configured via the YAML report config.  The YAML config will produce a report page that has a single report called "Report 1" where the graph by default will be displayed as a bar graph from the JSON data set to variable "data":
 
+```yaml
 	title: Example One
 	reports:
 	  - category: Report 1
@@ -63,25 +67,41 @@ Below is an example of a JSON report configured via the YAML report config.  The
 	          type: bar
 	          title_xaxis: Day of the Week
 	          title_yaxis: Ticket Count
+```
 
+### explaination:
+#### Config 
+The configuration intially starts with a title and reports configuration set
 
-Config 
 | key | description |
 |---|---|
 | title | the page title, this title will appear in the browser menu and also on the top most navigation pane |
 | reports | a collection of categories |
 
-Reports 
+#### Reports 
+
+| key | description |
+|---|---|
 | category | the category name |
 | reports | the collection of reports within the category |
 
-Category
+#### Category
+
+| key | description |
+|---|---|
 | title | the name of the category |
 | id | a uniqute id used by Javascript |
 | description | a description of the report | 
 | type | valid report types, see "Valid Report Types" table | 
+| data | data respective of the type, if type is file then the file path else a string |
 
+### Valid Report Type 
+The report type will explain with the report will expect from the "data", if the type is of type file then the data is expected to be a file path, else a string (either SQL or JSON)
 
-Valid Report Type
-| json_type | |
+| type | description |
+| --- | --- |
+| json_type | (default) data is JSON string |
+| json_file | data is a file path and name of file  that contains JSON |
+| query_string | data is the SQL query string |
+| query_file | data is a file that contains the SQL query string |
 
