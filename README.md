@@ -66,6 +66,8 @@ Below is an example of a JSON report configured via the YAML report config.  The
 
 
 Config 
+| key | description |
+|---|---|
 | title | the page title, this title will appear in the browser menu and also on the top most navigation pane |
 | reports | a collection of categories |
 
